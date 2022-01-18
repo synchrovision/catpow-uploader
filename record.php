@@ -23,6 +23,7 @@ else{
 	},array_slice($argv,2)));
 	$files=array_unique(array_merge($files,$files_to_add));
 }
+if(!is_dir($d=dirname($f))){mkdir($d);}
 file_put_contents($f,implode("\n",$files));
-echo "Following files was append to preset {$set}\n";
-echo implode("\n",$files_to_add)."\n";
+echo "Preset {$set} was updated\n";
+echo implode("\n",$files)."\n";
