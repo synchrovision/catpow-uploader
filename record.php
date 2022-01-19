@@ -12,7 +12,10 @@ if(empty($set=$argv[1]??null)){die("Require preset name as first parameter\n");}
 
 $f=__DIR__.'/preset/'.$set.'.txt';
 if(substr($set,0,1)==='#'){
-	$files=get_files_for_issue($set);
+	$files=array_filter(array_map(function($file){
+		if(!file_exists(ABSPATH.'/'.$file)){return null;}
+		return $file;
+	},get_files_for_issue($set)));
 }
 else{
 	$files=file_exists($f)?explode("\n",file_get_contents($f)):[];
