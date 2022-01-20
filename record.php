@@ -19,12 +19,18 @@ if(substr($set,0,1)==='#'){
 }
 else{
 	$files=file_exists($f)?explode("\n",file_get_contents($f)):[];
-	$files_to_add=array_filter(array_map(function($file){
-		if(str_starts_with($file,ABSPATH)){$file=substr($file,strlen(ABSPATH)+1);}
-		if(!file_exists(ABSPATH.'/'.$file)){echo "File {$file} does not exists\n";return null;}
-		return $file;
-	},array_slice($argv,2)));
-	$files=array_unique(array_merge($files,$files_to_add));
+	foreach(array_slice($argv,2) as $item){
+		if(strpos($item,'/')===false && (strlen($item)===7 || strlen($item)===40)){
+			if(!empty($files_to_add=get_files_for_commit($item))){
+				$files=array_merge($files,$files_to_add);
+				continue;
+			}
+		}
+		if(str_starts_with($item,ABSPATH)){$item=substr($item,strlen(ABSPATH)+1);}
+		if(!file_exists(ABSPATH.'/'.$item)){echo "File {$item} does not exists\n";continue;}
+		$files[]=$item;
+	}
+	$files=array_unique($files);
 }
 if(!is_dir($d=dirname($f))){mkdir($d);}
 file_put_contents($f,implode("\n",$files));

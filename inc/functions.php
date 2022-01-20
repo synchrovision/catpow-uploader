@@ -148,12 +148,15 @@ function do_git_command($command){
 	chdir(ABSPATH);
 	return $output;
 }
+function get_files_for_commit($commit){
+	return do_git_command('git diff-tree -r --name-only --no-commit-id '.$commit);
+}
 function get_files_for_issue($issue){
 	$files=[];
 	$rel_path=get_git_dir_info()['rel_path'];
 	$commits=do_git_command('git log --grep "'.$issue.'" --format="format:%H"');
 	foreach($commits as $commit){
-		$files=array_merge($files,do_git_command('git diff-tree -r --name-only --no-commit-id '.$commit));
+		$files=array_merge($files,get_files_for_commit($commit));
 	}
 	$files=array_unique($files);
 	if(!empty($rel_path)){
