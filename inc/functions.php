@@ -5,6 +5,9 @@ use phpseclib3\Crypt\PublicKeyLoader;
 define('ABSPATH',dirname(__DIR__,2));
 define('APP_PATH',dirname(__DIR__));
 define('INC_PATH',__DIR__);
+
+chdir(ABSPATH);
+
 require_once __DIR__.'/vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(APP_PATH);
 $dotenv->safeLoad();
@@ -128,41 +131,50 @@ function is_ascii_maybe($file){
 	}
 	return false;
 }
-
+function get_rel_path($from,$to){
+	$from_path=explode('/',$from);
+	$to_path=explode('/',$to);
+	while(!empty($from_path) && !empty($to_path) && $from_path[0]===$to_path[0]){
+		array_shift($from_path);
+		array_shift($to_path);
+	}
+	return str_repeat('../',count($from_path)).implode('/',$to_path);
+}
 /* git */
-function get_git_dir_info(){
-	static $dir_info;
-	if(isset($dir_info)){return $dir_info;}
-	$dir=ABSPATH;
-	$rel_path='';
+function get_git_dir_info($dir=''){
+	static $cache=[];
+	$dir=realpath($dir);
+	if(isset($cache[$dir])){return $cache[$dir];}
 	while(!file_exists($dir.'/.git')){
-		$rel_path=basename($dir).'/'.$rel_path;
 		$dir=dirname($dir);
 	}
-	return compact('dir','rel_path');
+	$rel_path=get_rel_path(ABSPATH,$dir);
+	return $cache[$dir]=compact('dir','rel_path');
 }
-function do_git_command($command){
-	$git_dir_info=get_git_dir_info();
+function do_git_command($command,$dir=''){
+	$git_dir_info=get_git_dir_info($dir);
 	chdir($git_dir_info['dir']);
 	exec($command,$output);
 	chdir(ABSPATH);
 	return $output;
 }
-function get_files_for_commit($commit){
-	return do_git_command('git diff-tree -r --name-only --no-commit-id '.$commit);
+function get_files_for_commit($commit,$dir=''){
+	$rel_path=get_git_dir_info($dir)['rel_path'];
+	$files=do_git_command('git diff-tree -r --name-only --no-commit-id '.$commit,$dir);
+	if(!empty($rel_path)){
+		foreach($files as $i=>$file){
+			$files[$i]=get_rel_path(ABSPATH,realpath($rel_path.'/'.$file));
+		}
+		$files=array_filter($files,function($file){return substr($file,0,3)!=='../';});
+	}
+	return $files;
 }
-function get_files_for_issue($issue){
+function get_files_for_issue($issue,$dir=''){
 	$files=[];
-	$rel_path=get_git_dir_info()['rel_path'];
-	$commits=do_git_command('git log --grep "'.$issue.'" --format="format:%H"');
+	$commits=do_git_command('git log --grep "'.$issue.'" --format="format:%H"',$dir);
 	foreach($commits as $commit){
 		$files=array_merge($files,get_files_for_commit($commit));
 	}
 	$files=array_unique($files);
-	if(!empty($rel_path)){
-		foreach($files as $i=>$file){
-			$files[$i]=substr($file,strlen($rel_path));
-		}
-	}
 	return $files;
 }

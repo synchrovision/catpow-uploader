@@ -16,7 +16,7 @@ elseif(file_exists($f=__DIR__.'/preset/'.$set.'.php')){
 	$files=include $f;
 }
 elseif(substr($set,0,1)==='#'){
-	$files=get_files_for_issue($set);
+	$files=get_files_for_issue($set,$argv[2]??'');
 }
 if(!empty($files)){
 	upload_files($files);
