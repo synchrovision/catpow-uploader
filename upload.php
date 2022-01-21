@@ -19,6 +19,6 @@ elseif(substr($set,0,1)==='#'){
 	$files=get_files_for_issue($set,$argv[2]??'');
 }
 if(!empty($files)){
-	upload_files($files);
+	upload_files(filter_ignore_files($files));
 }
 	

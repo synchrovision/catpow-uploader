@@ -36,11 +36,12 @@ else{
 			$files[]=$item;
 		}
 	}
-	$files=array_unique($files);
-	$files=array_filter($files,function($file){
-		return file_exists(ABSPATH.'/'.$file);
-	});
 }
+$files=array_unique($files);
+$files=array_filter($files,function($file){
+	return file_exists(ABSPATH.'/'.$file);
+});
+$files=filter_ignore_files($files);
 if(!is_dir($d=dirname($f))){mkdir($d);}
 file_put_contents($f,implode("\n",$files));
 echo "Preset {$set} was updated\n";

@@ -140,6 +140,48 @@ function get_rel_path($from,$to){
 	}
 	return str_repeat('../',count($from_path)).implode('/',$to_path);
 }
+function get_ftpignore($dir){
+	static $cache=[];
+	if(isset($cache[$dir])){return $cache[$dir];}
+	$rtn=[];
+	if(file_exists($f=ABSPATH.'/'.$dir.'/.ftpignore')){
+		foreach(file($f) as $line){
+			$line=trim($line);
+			if(empty($line)){continue;}
+			if(substr($line,0,1)==='!'){
+				$rtn[$dir]['keep'][]=substr($line,1);
+			}
+			else{
+				$rtn[$dir]['ignore'][]=$line;
+			}
+		}
+	}
+	if(!empty($dir)){
+		$rtn=array_merge(
+			$rtn,
+			get_ftpignore(
+				(strpos($dir,'/')!==false)?dirname($dir):''
+			)
+		);
+	}
+	return $rtn;
+}
+function filter_ignore_files($files){
+	return array_filter($files,function($file){
+		foreach(get_ftpignore(dirname($file)) as $dir=>$ftpignore){
+			$f=substr($file,strlen($dir));
+			if(isset($ftpignore['keep'])){
+				foreach($ftpignore['keep'] as $pattern){
+					if(fnmatch($pattern,$f)){continue 2;}
+				}
+			}
+			foreach($ftpignore['ignore'] as $pattern){
+				if(fnmatch($pattern,$f)){return false;}
+			}
+		}
+		return true;
+	});
+}
 /* git */
 function get_git_dir_info($dir=''){
 	static $cache=[];
