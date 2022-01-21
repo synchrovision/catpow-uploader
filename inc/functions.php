@@ -12,16 +12,6 @@ require_once __DIR__.'/vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(APP_PATH);
 $dotenv->safeLoad();
 /* ファイルアップロード */
-function upload_images(){
-	$items=array_map('fill_item_data',json_decode(file_get_contents(__DIR__.'/data/items.json'),1));
-	$files=[];
-	foreach($items as $item){
-		$files[trim(parse_url($item['image'],PHP_URL_PATH),'/')]=true;
-	}
-	upload_files(array_keys($files));
-	echo "end upload\n";
-	return true;
-}
 function upload_files($files){
 	if(isset($_ENV['SFTP_HOST'])){
 		upload_files_with_sftp($files);
