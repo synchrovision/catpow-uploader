@@ -8,11 +8,11 @@ if(substr($_SERVER['SERVER_PROTOCOL']??'',0,4)==='HTTP'){
 ini_set("error_log","php://stdout");
 include __DIR__.'/inc/functions.php';
 
-if(empty($set=$argv[1]??null)){die('Require preset name or issue number as first parameter');}
-if(file_exists($f=__DIR__.'/preset/'.$set.'.txt')){
+if(empty($set=$argv[1]??null)){die('Require fileset name or issue number as first parameter');}
+if(file_exists($f=__DIR__.'/fileset/'.$set.'.txt')){
 	$files=explode("\n",file_get_contents($f));
 }
-elseif(file_exists($f=__DIR__.'/preset/'.$set.'.php')){
+elseif(file_exists($f=__DIR__.'/fileset/'.$set.'.php')){
 	$files=include $f;
 }
 elseif(substr($set,0,1)==='#'){

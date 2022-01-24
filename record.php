@@ -8,9 +8,9 @@ if(substr($_SERVER['SERVER_PROTOCOL']??'',0,4)==='HTTP'){
 ini_set("error_log","php://stdout");
 include __DIR__.'/inc/functions.php';
 
-if(empty($set=$argv[1]??null)){die("Require preset name as first parameter\n");}
+if(empty($set=$argv[1]??null)){die("Require fileset name as first parameter\n");}
 
-$f=__DIR__.'/preset/'.$set.'.txt';
+$f=__DIR__.'/fileset/'.$set.'.txt';
 if(substr($set,0,1)==='#'){
 	$files=array_filter(array_map(function($file){
 		if(!file_exists(ABSPATH.'/'.$file)){return null;}
@@ -44,5 +44,5 @@ $files=array_filter($files,function($file){
 $files=filter_ignore_files($files);
 if(!is_dir($d=dirname($f))){mkdir($d);}
 file_put_contents($f,implode("\n",$files));
-echo "Preset {$set} was updated\n";
+echo "Fileset {$set} was updated\n";
 echo implode("\n",$files)."\n";
