@@ -17,7 +17,7 @@ function upload_files($files){
 		upload_files_with_sftp($files);
 	}
 	elseif(isset($_ENV['FTP_HOST'])){
-		upload_files_with_ftp($fils);
+		upload_files_with_ftp($files);
 	}
 }
 function upload_files_with_sftp($files){
