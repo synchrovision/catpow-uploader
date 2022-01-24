@@ -11,7 +11,7 @@ chdir(ABSPATH);
 require_once __DIR__.'/vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(APP_PATH);
 $dotenv->safeLoad();
-/* ファイルアップロード */
+/* upload */
 function upload_files($files){
 	if(isset($_ENV['SFTP_HOST'])){
 		upload_files_with_sftp($files);
@@ -121,6 +121,7 @@ function is_ascii_maybe($file){
 	}
 	return false;
 }
+/* ftpignore */
 function get_rel_path($from,$to){
 	$from_path=explode('/',$from);
 	$to_path=explode('/',$to);
@@ -159,7 +160,7 @@ function get_ftpignore($dir){
 function filter_ignore_files($files){
 	return array_filter($files,function($file){
 		foreach(get_ftpignore(dirname($file)) as $dir=>$ftpignore){
-			$f=substr($file,strlen($dir));
+			$f=substr($file,strlen($dir)+1);
 			if(isset($ftpignore['keep'])){
 				foreach($ftpignore['keep'] as $pattern){
 					if(fnmatch($pattern,$f)){continue 2;}
@@ -199,6 +200,7 @@ function get_files_for_commit($commit,$dir=''){
 		}
 		$files=array_filter($files,function($file){return substr($file,0,3)!=='../';});
 	}
+	sort($files);
 	return $files;
 }
 function get_files_for_issue($issue,$dir=''){
@@ -208,5 +210,6 @@ function get_files_for_issue($issue,$dir=''){
 		$files=array_merge($files,get_files_for_commit($commit));
 	}
 	$files=array_unique($files);
+	sort($files);
 	return $files;
 }
