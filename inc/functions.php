@@ -64,6 +64,7 @@ function upload_files_with_ftp($files){
 	$con=ftp_connect($_ENV['FTP_HOST'],$_ENV['FTP_PORT']??21);
 	if(!empty($con) && ftp_login($con,$_ENV['FTP_USER'],$_ENV['FTP_PASSWORD'])){
 		echo "ftp connection start\n";
+		ftp_pasv($con,true);
 		ftp_mkdir_recursive($con,$_ENV['FTP_ROOT_PATH']);
 		ftp_chdir($con,$_ENV['FTP_ROOT_PATH']);
 		$dir=ABSPATH;
