@@ -19,6 +19,27 @@ or
 git submodule add https://github.com/synchrovision/catpow-uploader.git _uploader
  ```
 
+setup
+--
+
+create .env file in _uploader directory or directory that was installed catpow-uploader.  
+Then write ftp host, user, password on it, like bellow.
+
+```env
+FTP_HOST="YOUR FTP HOST"
+FTP_USER="YOUR USER NAME"
+FTP_PASSWORD="YOUR PASSWORD"
+FTP_ROOT_PATH="YOUR ROOT PATH"
+```
+Or, if you use SFTP and pem, write like bellow.
+
+```env
+SFTP_HOST="YOUR FTP HOST"
+SFTP_USER="YOUR USER NAME"
+SFTP_PASSWORD="YOUR PASSWORD"
+SFTP_ROOT_PATH="YOUR ROOT PATH"
+SFTP_PEM="PATH TO YOUR PEM FILE"
+```
 
 detail
 --
