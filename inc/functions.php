@@ -95,7 +95,7 @@ function upload_files_with_ftp($files){
 }
 function ftp_mkdir_recursive($con,$dir){
 	$org=ftp_pwd($con);
-	$path=explode('/',$dir);
+	$path=explode('/',rtrim($dir,'/'));
 	foreach($path as $dirname){
 		if(!@ftp_chdir($con,$dirname)){
 			ftp_mkdir($con,$dirname);
