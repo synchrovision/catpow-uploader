@@ -51,7 +51,7 @@ There's 5 way to create fileset.
 
 #### 1. Via CLI, with files.
 
-Execute record.php with filesetname you like as first argument, second file path you want to upload.
+Execute record.php with filesetname you like as first argument, file path you want to upload as second.
 
 ```command
 php record.php filesetname path/to/file1.php
@@ -103,7 +103,7 @@ php record.php filesetname commitID path/to/repository
 #### 4. Create static fileset in fileset directory.
 
 Creating fileset via cli only means generate list of file with plain text file in fileset directory.
-You can create or edt it directly.
+You can create or edit it directly.
 
 ```text
 mypage/index.html
@@ -129,7 +129,7 @@ To upload files listed in fileset, execute upload.php with the filesetname as fi
 php upload.php filesetname
 ```
 
-Enviroment
+Environment
 --
 
 Require PHP 8.0 CLI
