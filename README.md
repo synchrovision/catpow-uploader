@@ -6,7 +6,7 @@ Catpow Uploader
 Upload files via ftp|sfpt by static|dynamic fileset.
 
 
-install
+Install
 --
 
  ```command
@@ -19,7 +19,7 @@ or
 git submodule add https://github.com/synchrovision/catpow-uploader.git _uploader
  ```
 
-setup
+Setup
 --
 
 create .env file in _uploader directory or directory that was installed catpow-uploader.  
@@ -41,9 +41,10 @@ SFTP_ROOT_PATH="YOUR ROOT PATH"
 SFTP_PEM="PATH TO YOUR PEM FILE"
 ```
 
-detail
+Usage
 --
 
+### Create Fileset
 
 There's 5 way to create fileset
 
@@ -82,7 +83,6 @@ php record.php filesetname #1 path/to/repository
 ```
 
 
-
 #### 3. Via CLI, with GitHub commit.
 
 You can also create fileset from commit.
@@ -118,9 +118,13 @@ If Catpow-uploader found php file with filesetname in fileset directory, Catpow-
 return glob(ABSPATH.'/news/*.json');
 ```
 
+### Upload Fileset
 
+```command
+php upload.php filesetname
+```
 
-enviroment
+Enviroment
 --
 
 Require PHP 8.0 CLI
