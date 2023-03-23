@@ -46,9 +46,12 @@ Usage
 
 ### Create Fileset
 
-There's 5 way to create fileset
+First, create fileset that listed files you want to upload.  
+There's 5 way to create fileset.
 
 #### 1. Via CLI, with files.
+
+Execute record.php with filesetname you like as first argument, second file path you want to upload.
 
 ```command
 php record.php filesetname path/to/file1.php
@@ -100,7 +103,7 @@ php record.php filesetname commitID path/to/repository
 #### 4. Create static fileset in fileset directory.
 
 Creating fileset via cli only means generate list of file with plain text file in fileset directory.
-So that, you can create it directly.
+You can create or edt it directly.
 
 ```text
 mypage/index.html
@@ -119,6 +122,8 @@ return glob(ABSPATH.'/news/*.json');
 ```
 
 ### Upload Fileset
+
+To upload files listed in fileset, execute upload.php with the filesetname as first argument.
 
 ```command
 php upload.php filesetname
