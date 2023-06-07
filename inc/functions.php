@@ -127,6 +127,85 @@ function is_ascii_maybe($file){
 	}
 	return false;
 }
+/* download */
+function download_files($files){
+	if(isset($_ENV['SFTP_HOST'])){
+		download_files_with_sftp($files);
+	}
+	elseif(isset($_ENV['FTP_HOST'])){
+		download_files_with_ftp($files);
+	}
+}
+function download_files_with_sftp($files){
+	assert(isset($_ENV['SFTP_HOST']),'require SFTP_HOST');
+	assert(isset($_ENV['SFTP_USER']),'require SFTP_USER');
+	assert(isset($_ENV['SFTP_PEM']) || isset($_ENV['SFTP_PASSWORD']),'require SFTP_PEM or SFTP_PASSWORD');
+	$sftp=new SFTP($_ENV['SFTP_HOST'],$_ENV['SFTP_PORT']??22);
+	if(isset($_ENV['SFTP_PEM'])){
+		$key=PublicKeyLoader::load(file_get_contents(APP_PATH.'/'.$_ENV['SFTP_PEM']));
+		if(!$sftp->login($_ENV['SFTP_USER'],$key)){
+			echo "sftp failed to login with identical file {$_ENV['SFTP_PEM']}\n";
+			return false;
+		}
+	}
+	else if(isset($_ENV['SFTP_PASSWORD'])){
+		if(!$sftp->login($_ENV['SFTP_USER'],$_ENV['SFTP_PASSWORD'])){
+			echo "sftp failed to login with password\n";
+			return false;
+		}
+	}
+	echo "sftp connection start\n";
+	if(isset($_ENV['SFTP_ROOT_PATH'])){
+		if(!$sftp->chdir($_ENV['SFTP_ROOT_PATH'])){
+			echo "sftp failed to change directory to {$_ENV['SFTP_ROOT_PATH']}\n";
+			return false;
+		}
+	}
+	foreach($files as $file){
+		$dir=dirname(ABSPATH.'/'.$file);
+		if(!is_dir($dir)){mkdir($dir,0755,true);}
+		if($sftp->get($file,ABSPATH.'/'.$file)){
+			echo "download {$file}\n";
+		}
+		else{
+			echo "failed to download {$file}\n";
+		}
+	}
+	if(!empty($sftp->getSFTPErrors())){
+		echo "sftp error occurred\n";
+		echo implode("\n",$sftp->getSFTPErrors());
+	}
+	echo "sftp connection end\n";
+	
+}
+function download_files_with_ftp($files){
+	assert(isset($_ENV['FTP_HOST']),'require FTP_HOST');
+	assert(isset($_ENV['FTP_USER']),'require FTP_USER');
+	assert(isset($_ENV['FTP_PASSWORD']),'require FTP_PASSWORD');
+	$con=ftp_connect($_ENV['FTP_HOST'],$_ENV['FTP_PORT']??21);
+	if(!empty($con) && ftp_login($con,$_ENV['FTP_USER'],$_ENV['FTP_PASSWORD'])){
+		echo "ftp connection start\n";
+		ftp_pasv($con,true);
+		ftp_mkdir_recursive($con,$_ENV['FTP_ROOT_PATH']);
+		ftp_chdir($con,$_ENV['FTP_ROOT_PATH']);
+		$dir=ABSPATH;
+		foreach($files as $file){
+			$f=$dir.'/'.$file;
+			if(!is_dir(dirname($f))){mkdir(dirname($f),0755,true);}
+			if(ftp_get($con,$f,$file,is_ascii_maybe($file)?FTP_ASCII:FTP_BINARY)){
+				echo "download {$file}\n";
+			}
+			else{
+				echo "failed to download {$file}\n";
+			}
+		}
+		ftp_close($con);
+		echo "ftp connection end\n";
+	}
+	else{
+		echo "ftp connection failed\n";
+	}
+}
 /*package*/
 function package_files($set,$files){
 	$set_dir=APP_PATH.'/package/'.$set.'/';
