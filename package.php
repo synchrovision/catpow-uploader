@@ -1,6 +1,6 @@
 <?php
 /**
-* 第一引数で指定したセットのファイルを.envで設定したファイルにFTPアップロード
+* 第一引数で指定したセットのファイルをpackegeフォルダに収集
 */
 if(substr($_SERVER['SERVER_PROTOCOL']??'',0,4)==='HTTP'){
 	die("Execute this PHP with CLI !");
