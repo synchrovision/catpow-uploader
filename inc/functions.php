@@ -46,6 +46,8 @@ function upload_files_with_sftp($files){
 		}
 	}
 	foreach($files as $file){
+		$dir=dirname($file);
+		if(!$sftp->is_dir($dir)){$sftp->mkdir($dir,0755,true);}
 		if($sftp->put($file,ABSPATH.'/'.$file,SFTP::SOURCE_LOCAL_FILE)){
 			echo "upload {$file}\n";
 		}
