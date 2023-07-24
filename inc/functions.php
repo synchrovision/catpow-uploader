@@ -266,6 +266,65 @@ function filter_ignore_files($files){
 		return true;
 	});
 }
+/* ftpinclude */
+function extract_include_files($dir='',$inherit_rules=[]){
+	$files=[];
+	$rules=$inherit_rules;
+	if(file_exists($f=ABSPATH.$dir.'/.ftpinclude')){
+		foreach(file($f) as $line){
+			$line=trim($line);
+			if(empty($line)){continue;}
+			if(!preg_match('/^!?\//',$line)){$inherit_rules[]=$line;}
+			$rules[]=$line;
+		}
+	}
+	foreach($rules as $rule){
+		if(substr($rule,0,1)==='!'){
+			$files=array_diff($files,glob(ABSPATH.$dir.'/'.ltrim(substr($rule,1),'/')));
+		}
+		else{
+			$files=array_unique(array_merge($files,glob(ABSPATH.$dir.'/'.ltrim($rule,'/'))));
+		}
+	}
+	foreach($files as $i=>$file){
+		$files[$i]=get_rel_path(ABSPATH,$file);
+	}
+	foreach(scandir(ABSPATH.$dir) as $fname){
+		if($fname==='.' || $fname==='..'){continue;}
+		if(is_dir($d=ABSPATH.$dir.'/'.$fname)){
+			$files=array_merge($files,extract_include_files($dir.'/'.$fname,$inherit_rules));
+		}
+	}
+	sort($files);
+	return $files;
+}
+/* ignored */
+function extract_ignored_files($dir=''){
+	$files=[];
+	$dirs=[$dir];
+	$in_git_flags=array_flip(get_all_files_in_git(ltrim($dir,'/')));
+	for($i=0;$i<count($dirs);$i++){
+		$cd=$dirs[$i];
+		foreach(scandir(ABSPATH.$cd) as $fname){
+			if(in_array($fname,['.','..','.git','.DS_Store','_notes','node_modules'],true)){continue;}
+			if($fname==='vendor' && file_exists(ABSPATH.$cd.'/composer.json')){continue;}
+			if(is_dir($d=ABSPATH.$cd.'/'.$fname)){
+				if(file_exists($d.'/.git')){
+					$files=array_merge($files,extract_ignored_files($cd.'/'.$fname));
+				}
+				else{
+					$dirs[]=$cd.'/'.$fname;
+				}
+			}
+			else{
+				$file=get_rel_path(ABSPATH,ABSPATH.$cd.'/'.$fname);
+				if(!isset($in_git_flags[$file])){$files[]=$file;}
+			}
+		}
+	}
+	sort($files);
+	return $files;
+}
 /* git */
 function get_git_dir_info($dir=''){
 	static $cache=[];
@@ -283,6 +342,18 @@ function do_git_command($command,$dir=''){
 	exec($command,$output);
 	chdir(ABSPATH);
 	return $output;
+}
+function get_all_files_in_git($dir=''){
+	$rel_path=get_git_dir_info($dir)['rel_path'];
+	$files=do_git_command('git ls-files',$dir);
+	if(!empty($rel_path)){
+		foreach($files as $i=>$file){
+			$files[$i]=get_rel_path(ABSPATH,realpath($rel_path.'/'.$file));
+		}
+		$files=array_filter($files,function($file){return substr($file,0,3)!=='../';});
+	}
+	sort($files);
+	return $files;
 }
 function get_files_for_commit($commit,$dir=''){
 	$rel_path=get_git_dir_info($dir)['rel_path'];
