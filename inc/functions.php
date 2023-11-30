@@ -377,3 +377,19 @@ function get_files_for_issue($issue,$dir=''){
 	sort($files);
 	return $files;
 }
+/* files */
+function get_all_files_in_dir($dir=null){
+	$files=[];
+	foreach(scandir($dir??'./') as $fname){
+		if(in_array($fname[0],['.','_'])){continue;}
+		$f=$dir.$fname;
+		if(is_dir($f)){
+			$files=array_merge($files,get_all_files_in_dir($f.'/'));
+			continue;
+		}
+		else{
+			$files[]=$f;
+		}
+	}
+	return $files;
+}

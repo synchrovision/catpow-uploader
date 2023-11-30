@@ -19,7 +19,10 @@ if(substr($set,0,1)==='#'){
 }
 else{
 	$files=file_exists($f)?explode("\n",file_get_contents($f)):[];
-	if(substr($argv[2],0,1)==='#'){
+	if($argv[2]==='-a'){
+		$files=get_all_files_in_dir();
+	}
+	elseif(substr($argv[2],0,1)==='#'){
 		if(!empty($files_to_add=get_files_for_issue($argv[2],$argv[3]??''))){
 			$files=array_merge($files,$files_to_add);
 		}
@@ -46,3 +49,4 @@ if(!is_dir($d=dirname($f))){mkdir($d);}
 file_put_contents($f,implode("\n",$files));
 echo "Fileset {$set} was updated\n";
 echo implode("\n",$files)."\n";
+
