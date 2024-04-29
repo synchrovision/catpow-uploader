@@ -75,8 +75,10 @@ function upload_files_with_ftp($files){
 	if(!empty($con) && ftp_login($con,$_ENV['FTP_USER'],$_ENV['FTP_PASSWORD'])){
 		echo "ftp connection start\n";
 		ftp_pasv($con,true);
-		ftp_mkdir_recursive($con,$_ENV['FTP_ROOT_PATH']);
-		ftp_chdir($con,$_ENV['FTP_ROOT_PATH']);
+		if(!empty($_ENV['FTP_ROOT_PATH'])){
+			ftp_mkdir_recursive($con,$_ENV['FTP_ROOT_PATH']);
+			ftp_chdir($con,$_ENV['FTP_ROOT_PATH']);
+		}
 		$dir=ABSPATH;
 		foreach($files as $file){
 			if($fp=fopen($dir.'/'.$file,'r')){
@@ -102,11 +104,14 @@ function upload_files_with_ftp($files){
 }
 function ftp_mkdir_recursive($con,$dir){
 	$org=ftp_pwd($con);
-	$path=explode('/',rtrim($dir,'/'));
-	foreach($path as $dirname){
-		if(!@ftp_chdir($con,$dirname)){
-			ftp_mkdir($con,$dirname);
-			ftp_chdir($con,$dirname);
+	$dir=rtrim($dir,'/');
+	if(!empty($path)){
+		$path=explode('/',$dir);
+		foreach($path as $dirname){
+			if(!@ftp_chdir($con,$dirname)){
+				ftp_mkdir($con,$dirname);
+				ftp_chdir($con,$dirname);
+			}
 		}
 	}
 	@ftp_chdir($con,$org);
