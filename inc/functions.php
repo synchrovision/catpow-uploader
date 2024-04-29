@@ -66,7 +66,12 @@ function upload_files_with_ftp($files){
 	assert(isset($_ENV['FTP_HOST']),'require FTP_HOST');
 	assert(isset($_ENV['FTP_USER']),'require FTP_USER');
 	assert(isset($_ENV['FTP_PASSWORD']),'require FTP_PASSWORD');
-	$con=ftp_ssl_connect($_ENV['FTP_HOST'],$_ENV['FTP_PORT']??21);
+	if(isset($_ENV['FTP_SSL']) && in_array(strtolower($_ENV['FTP_SSL']),['off','0'])){
+		$con=ftp_connect($_ENV['FTP_HOST'],(int)$_ENV['FTP_PORT']??21);
+	}
+	else{
+		$con=ftp_ssl_connect($_ENV['FTP_HOST'],(int)$_ENV['FTP_PORT']??21);
+	}
 	if(!empty($con) && ftp_login($con,$_ENV['FTP_USER'],$_ENV['FTP_PASSWORD'])){
 		echo "ftp connection start\n";
 		ftp_pasv($con,true);
