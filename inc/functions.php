@@ -26,7 +26,7 @@ function upload_files_with_sftp($files){
 	assert(isset($_ENV['SFTP_PEM']) || isset($_ENV['SFTP_PASSWORD']),'require SFTP_PEM or SFTP_PASSWORD');
 	$sftp=new SFTP($_ENV['SFTP_HOST'],$_ENV['SFTP_PORT']??22);
 	if(isset($_ENV['SFTP_PEM'])){
-		$key=PublicKeyLoader::load(file_get_contents(APP_PATH.'/'.$_ENV['SFTP_PEM']));
+		$key=PublicKeyLoader::load(file_get_contents(APP_PATH.'/'.$_ENV['SFTP_PEM']),$_ENV['SFTP_PEM_PASSWORD']??false);
 		if(!$sftp->login($_ENV['SFTP_USER'],$key)){
 			echo "sftp failed to login with identical file {$_ENV['SFTP_PEM']}\n";
 			return false;
