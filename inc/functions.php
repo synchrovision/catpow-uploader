@@ -13,12 +13,27 @@ $dotenv = Dotenv\Dotenv::createImmutable(APP_PATH);
 $dotenv->safeLoad();
 /* upload */
 function upload_files($files){
+	$files=extract_dir_to_files($files);
 	if(isset($_ENV['SFTP_HOST'])){
 		upload_files_with_sftp($files);
 	}
 	elseif(isset($_ENV['FTP_HOST'])){
 		upload_files_with_ftp($files);
 	}
+}
+function extract_dir_to_files($files){
+	for($i=0,$l=count($files);$i<$l;$i++){
+		if(is_dir($files[$i])){
+			$dir=trim(array_splice($files,$i,1)[0],'/');
+			foreach(scandir($dir) as $file){
+				if(in_array($file,['.','..','.DS_Store','_notes'],true)){continue;}
+				array_push($files,$dir.'/'.$file);
+			}
+			$i--;
+			$l=count($files);
+		}
+	}
+	return $files;
 }
 function upload_files_with_sftp($files){
 	assert(isset($_ENV['SFTP_HOST']),'require SFTP_HOST');
