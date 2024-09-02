@@ -41,6 +41,8 @@ SFTP_ROOT_PATH="YOUR ROOT PATH"
 SFTP_PEM="PATH TO YOUR PEM FILE"
 ```
 
+If you use another FTP connection for testup, create .env.test file like same.
+
 Usage
 --
 
@@ -127,6 +129,12 @@ To upload files listed in fileset, execute upload.php with the filesetname as fi
 
 ```command
 php upload.php filesetname
+```
+
+To upload with setting in .env.test.
+
+```command
+php testup.php filesetname
 ```
 
 Environment
