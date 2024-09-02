@@ -14,6 +14,7 @@ $dotenv=Dotenv\Dotenv::createImmutable(APP_PATH,ENV_FILE_NAME);
 $dotenv->safeLoad();
 /* upload */
 function upload_files($files){
+	$files=extract_dir_to_files($files);
 	if(isset($_ENV['SFTP_HOST'])){
 		upload_files_with_sftp($files);
 	}
@@ -21,13 +22,27 @@ function upload_files($files){
 		upload_files_with_ftp($files);
 	}
 }
+function extract_dir_to_files($files){
+	for($i=0,$l=count($files);$i<$l;$i++){
+		if(is_dir($files[$i])){
+			$dir=trim(array_splice($files,$i,1)[0],'/');
+			foreach(scandir($dir) as $file){
+				if(in_array($file,['.','..','.DS_Store','_notes'],true)){continue;}
+				array_push($files,$dir.'/'.$file);
+			}
+			$i--;
+			$l=count($files);
+		}
+	}
+	return $files;
+}
 function upload_files_with_sftp($files){
 	assert(isset($_ENV['SFTP_HOST']),'require SFTP_HOST');
 	assert(isset($_ENV['SFTP_USER']),'require SFTP_USER');
 	assert(isset($_ENV['SFTP_PEM']) || isset($_ENV['SFTP_PASSWORD']),'require SFTP_PEM or SFTP_PASSWORD');
 	$sftp=new SFTP($_ENV['SFTP_HOST'],$_ENV['SFTP_PORT']??22);
 	if(isset($_ENV['SFTP_PEM'])){
-		$key=PublicKeyLoader::load(file_get_contents(APP_PATH.'/'.$_ENV['SFTP_PEM']));
+		$key=PublicKeyLoader::load(file_get_contents(APP_PATH.'/'.$_ENV['SFTP_PEM']),$_ENV['SFTP_PEM_PASSWORD']??false);
 		if(!$sftp->login($_ENV['SFTP_USER'],$key)){
 			echo "sftp failed to login with identical file {$_ENV['SFTP_PEM']}\n";
 			return false;
@@ -67,12 +82,19 @@ function upload_files_with_ftp($files){
 	assert(isset($_ENV['FTP_HOST']),'require FTP_HOST');
 	assert(isset($_ENV['FTP_USER']),'require FTP_USER');
 	assert(isset($_ENV['FTP_PASSWORD']),'require FTP_PASSWORD');
-	$con=ftp_ssl_connect($_ENV['FTP_HOST'],$_ENV['FTP_PORT']??21);
+	if(isset($_ENV['FTP_SSL']) && in_array(strtolower($_ENV['FTP_SSL']),['off','0'])){
+		$con=ftp_connect($_ENV['FTP_HOST'],(int)$_ENV['FTP_PORT']??21);
+	}
+	else{
+		$con=ftp_ssl_connect($_ENV['FTP_HOST'],(int)$_ENV['FTP_PORT']??21);
+	}
 	if(!empty($con) && ftp_login($con,$_ENV['FTP_USER'],$_ENV['FTP_PASSWORD'])){
 		echo "ftp connection start\n";
 		ftp_pasv($con,true);
-		ftp_mkdir_recursive($con,$_ENV['FTP_ROOT_PATH']);
-		ftp_chdir($con,$_ENV['FTP_ROOT_PATH']);
+		if(!empty($_ENV['FTP_ROOT_PATH'])){
+			ftp_mkdir_recursive($con,$_ENV['FTP_ROOT_PATH']);
+			ftp_chdir($con,$_ENV['FTP_ROOT_PATH']);
+		}
 		$dir=ABSPATH;
 		foreach($files as $file){
 			if($fp=fopen($dir.'/'.$file,'r')){
@@ -98,11 +120,14 @@ function upload_files_with_ftp($files){
 }
 function ftp_mkdir_recursive($con,$dir){
 	$org=ftp_pwd($con);
-	$path=explode('/',rtrim($dir,'/'));
-	foreach($path as $dirname){
-		if(!@ftp_chdir($con,$dirname)){
-			ftp_mkdir($con,$dirname);
-			ftp_chdir($con,$dirname);
+	$dir=rtrim($dir,'/');
+	if(!empty($path)){
+		$path=explode('/',$dir);
+		foreach($path as $dirname){
+			if(!@ftp_chdir($con,$dirname)){
+				ftp_mkdir($con,$dirname);
+				ftp_chdir($con,$dirname);
+			}
 		}
 	}
 	@ftp_chdir($con,$org);
