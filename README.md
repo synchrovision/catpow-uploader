@@ -10,13 +10,13 @@ Install
 --
 
  ```command
-git clone --recursive https://github.com/cpprj/catpow-uploader.git _uploader
+git clone --recursive https://github.com/synchrovision/catpow-uploader.git _uploader
  ```
 
 or
 
  ```command
-git submodule add https://github.com/cpprj/catpow-uploader.git _uploader
+git submodule add https://github.com/synchrovision/catpow-uploader.git _uploader
  ```
 
 Setup
