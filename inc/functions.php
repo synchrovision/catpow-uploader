@@ -5,11 +5,12 @@ use phpseclib3\Crypt\PublicKeyLoader;
 define('ABSPATH',dirname(__DIR__,2));
 define('APP_PATH',dirname(__DIR__));
 define('INC_PATH',__DIR__);
+if(!defined('ENV_FILE_NAME')){define('ENV_FILE_NAME',null);}
 
 chdir(ABSPATH);
 
 require_once __DIR__.'/vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(APP_PATH);
+$dotenv=Dotenv\Dotenv::createImmutable(APP_PATH,ENV_FILE_NAME);
 $dotenv->safeLoad();
 /* upload */
 function upload_files($files){
