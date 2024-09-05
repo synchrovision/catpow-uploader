@@ -27,7 +27,7 @@ function extract_dir_to_files($files){
 		if(is_dir($files[$i])){
 			$dir=trim(array_splice($files,$i,1)[0],'/');
 			foreach(scandir($dir) as $file){
-				if(in_array($file,['.','..','.DS_Store','_notes'],true)){continue;}
+				if(in_array($file,['.','..','.DS_Store','_notes','.git'],true)){continue;}
 				array_push($files,$dir.'/'.$file);
 			}
 			$i--;
