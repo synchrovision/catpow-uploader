@@ -121,7 +121,7 @@ function upload_files_with_ftp($files){
 function ftp_mkdir_recursive($con,$dir){
 	$org=ftp_pwd($con);
 	$dir=rtrim($dir,'/');
-	if(!empty($path)){
+	if(!empty($dir)){
 		$path=explode('/',$dir);
 		foreach($path as $dirname){
 			if(!@ftp_chdir($con,$dirname)){
