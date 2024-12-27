@@ -64,6 +64,10 @@ function upload_files_with_sftp($files){
 	foreach($files as $file){
 		$dir=dirname($file);
 		if(!$sftp->is_dir($dir)){$sftp->mkdir($dir,0755,true);}
+		if(substr($file,0,2)==='- '){
+			$sftp->delete(substr($file,2));
+			continue;
+		}
 		if($sftp->put($file,ABSPATH.'/'.$file,SFTP::SOURCE_LOCAL_FILE)){
 			echo "upload {$file}\n";
 		}
@@ -99,6 +103,10 @@ function upload_files_with_ftp($files){
 		foreach($files as $file){
 			if($fp=fopen($dir.'/'.$file,'r')){
 				ftp_mkdir_recursive($con,dirname($file));
+				if(substr($file,0,2)==='- '){
+					ftp_delete($con,substr($file,2));
+					continue;
+				}
 				if(ftp_fput($con,$file,$fp,is_ascii_maybe($file)?FTP_ASCII:FTP_BINARY)){
 					echo "upload {$file}\n";
 				}
