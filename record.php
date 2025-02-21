@@ -42,6 +42,7 @@ else{
 }
 $files=array_unique($files);
 $files=array_filter($files,function($file){
+	if(substr($file,0,2)==='- '){return true;}
 	return file_exists(ABSPATH.'/'.$file);
 });
 $files=filter_ignore_files($files);

@@ -101,12 +101,12 @@ function upload_files_with_ftp($files){
 		}
 		$dir=ABSPATH;
 		foreach($files as $file){
+			if(substr($file,0,2)==='- '){
+				ftp_delete($con,substr($file,2));
+				continue;
+			}
 			if($fp=fopen($dir.'/'.$file,'r')){
 				ftp_mkdir_recursive($con,dirname($file));
-				if(substr($file,0,2)==='- '){
-					ftp_delete($con,substr($file,2));
-					continue;
-				}
 				if(ftp_fput($con,$file,$fp,is_ascii_maybe($file)?FTP_ASCII:FTP_BINARY)){
 					echo "upload {$file}\n";
 				}
@@ -391,13 +391,19 @@ function get_all_files_in_git($dir=''){
 }
 function get_files_for_commit($commit,$dir=''){
 	$rel_path=get_git_dir_info($dir)['rel_path'];
-	$files=do_git_command('git diff-tree -r --name-only --no-commit-id '.$commit,$dir);
+	$files=do_git_command('git diff-tree -r --name-only --no-commit-id --diff-filter=d '.$commit,$dir);
+	$removed_files=do_git_command('git diff-tree -r --name-only --no-commit-id --diff-filter=D '.$commit,$dir);
 	if(!empty($rel_path)){
 		foreach($files as $i=>$file){
 			$files[$i]=get_rel_path(ABSPATH,realpath($rel_path.'/'.$file));
 		}
 		$files=array_filter($files,function($file){return substr($file,0,3)!=='../';});
+		foreach($removed_files as $i=>$removed_file){
+			$removed_files[$i]=get_rel_path(ABSPATH,realpath($rel_path.'/'.$removed_file));
+		}
+		$removed_files=array_filter($removed_files,function($removed_file){return substr($removed_file,0,3)!=='../';});
 	}
+	$files=array_merge($files,array_map(function($removed_file){return '- '.$removed_file;},$removed_files));
 	sort($files);
 	return $files;
 }
