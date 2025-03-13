@@ -19,6 +19,11 @@ elseif(substr($set,0,1)==='#'){
 	$files=get_files_for_issue($set,$argv[2]??'');
 }
 if(!empty($files)){
-	package_files($set,filter_ignore_files($files));
+	if(in_array('-z',$argv)){
+		zip_files($set,filter_ignore_files($files));
+	}
+	else{
+		package_files($set,filter_ignore_files($files));
+	}
 }
 	

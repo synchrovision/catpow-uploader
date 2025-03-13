@@ -248,6 +248,14 @@ function package_files($set,$files){
 		copy(ABSPATH.'/'.$file,$set_dir.$file);
 	}
 }
+function zip_files($set,$files){
+	$zip=new ZipArchive();
+	$zip->open(APP_PATH.'/package/'.$set.'.zip', ZipArchive::CREATE|ZipArchive::OVERWRITE);
+	foreach($files as $file){
+		$zip->addFile(ABSPATH.'/'.$file,$set.'/'.$file);
+	}
+	$zip->close();
+}
 /* ftpignore */
 function get_rel_path($from,$to){
 	$from_path=explode('/',$from);
