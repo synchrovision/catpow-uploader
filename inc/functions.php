@@ -21,6 +21,9 @@ function upload_files($files){
 	elseif(isset($_ENV['FTP_HOST'])){
 		upload_files_with_ftp($files);
 	}
+	elseif(isset($_ENV['DIR'])){
+		reflect_files($files);
+	}
 }
 function extract_dir_to_files($files){
 	for($i=0,$l=count($files);$i<$l;$i++){
@@ -65,7 +68,10 @@ function upload_files_with_sftp($files){
 		$dir=dirname($file);
 		if(!$sftp->is_dir($dir)){$sftp->mkdir($dir,0755,true);}
 		if(substr($file,0,2)==='- '){
-			$sftp->delete(substr($file,2));
+			$file=substr($file,2);
+			if($sftp->delete($file)){
+				echo "delete {$file}\n";
+			}
 			continue;
 		}
 		if($sftp->put($file,ABSPATH.'/'.$file,SFTP::SOURCE_LOCAL_FILE)){
@@ -102,7 +108,10 @@ function upload_files_with_ftp($files){
 		$dir=ABSPATH;
 		foreach($files as $file){
 			if(substr($file,0,2)==='- '){
-				ftp_delete($con,substr($file,2));
+				$file=substr($file,2);
+				if(ftp_delete($con,substr($file,2))){
+					echo "delete {$file}\n";
+				}
 				continue;
 			}
 			if($fp=fopen($dir.'/'.$file,'r')){
@@ -160,6 +169,35 @@ function is_ascii_maybe($file){
 			return true;
 	}
 	return false;
+}
+/*reflect*/
+function reflect_files($files){
+	assert(isset($_ENV['DIR']),'require DIR');
+	$dir=rtrim($_ENV['DIR'],'/');
+	foreach($files as $file){
+		if(substr($file,0,2)==='- '){
+			$file=substr($file,2);
+			if(file_exists($dir.'/'.$file)){
+				unlink($dir.'/'.$file);
+				echo "delete {$file}\n";
+			}
+			continue;
+		}
+		if(file_exists(ABSPATH.'/'.$file)){
+			if(!is_dir($d=$dir.'/'.dirname($file))){
+				mkdir($d,0755,true);
+			}
+			if(copy(ABSPATH.'/'.$file,$dir.'/'.$file)){
+				echo "copy {$file}\n";
+			}
+			else{
+				echo "failed to copy {$file}\n";
+			}
+		}
+		else{
+			echo "file {$file} not found\n";
+		}
+	}
 }
 /* download */
 function download_files($files){
