@@ -109,7 +109,7 @@ function upload_files_with_ftp($files){
 		foreach($files as $file){
 			if(substr($file,0,2)==='- '){
 				$file=substr($file,2);
-				if(ftp_delete($con,substr($file,2))){
+				if(ftp_delete($con,$file)){
 					echo "delete {$file}\n";
 				}
 				continue;
