@@ -283,7 +283,7 @@ function package_files($set,$files){
 	$set_dir=APP_PATH.'/package/'.$set.'/';
 	foreach($files as $file){
 		if(!is_dir($dir=dirname($set_dir.$file))){mkdir($dir,0755,true);}
-		copy(ABSPATH.'/'.$file,$set_dir.$file);
+		passthru('cp -r '.ABSPATH.'/'.$file.' '.$set_dir.$file);
 	}
 }
 function zip_files($set,$files){
