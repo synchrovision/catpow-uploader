@@ -27,10 +27,8 @@ else{
 			$files=array_merge($files,$files_to_add);
 		}
 	}
-	elseif(strpos($argv[2],'/')===false && (strlen($argv[2])===7 || strlen($argv[2])===40)){
-		if(!empty($files_to_add=get_files_for_commit($argv[2],$argv[3]??''))){
-			$files=array_merge($files,$files_to_add);
-		}
+	elseif(preg_match('/^[a-z\d]+$/',$argv[2]) && !empty($files_to_add=get_files_for_commit($argv[2],$argv[3]??''))){
+		$files=array_merge($files,$files_to_add);
 	}
 	else{
 		foreach(array_slice($argv,2) as $item){
