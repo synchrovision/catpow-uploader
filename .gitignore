@@ -4,3 +4,4 @@ _notes
 /fileset
 /package
 *.pem
+/settings.php

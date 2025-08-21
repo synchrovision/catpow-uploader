@@ -2,9 +2,10 @@
 use phpseclib3\Net\SFTP;
 use phpseclib3\Crypt\PublicKeyLoader;
 
-define('ABSPATH',dirname(__DIR__,2));
 define('APP_PATH',dirname(__DIR__));
 define('INC_PATH',__DIR__);
+if(file_exists(APP_PATH.'/settings.php')){include APP_PATH.'/settings.php';}
+if(!defined('ABSPATH')){define('ABSPATH',dirname(__DIR__,2));}
 if(!defined('ENV_FILE_NAME')){define('ENV_FILE_NAME',null);}
 
 chdir(ABSPATH);
