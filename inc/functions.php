@@ -334,7 +334,7 @@ function get_ftpignore($dir){
 function filter_ignore_files($files){
 	return array_filter($files,function($file){
 		foreach(get_ftpignore(dirname($file)) as $dir=>$ftpignore){
-			$f=substr($file,strlen($dir)+1);
+			$f=ltrim(substr($file,strlen($dir)),'/');
 			if(isset($ftpignore['keep'])){
 				foreach($ftpignore['keep'] as $pattern){
 					if(fnmatch($pattern,$f)){continue 2;}
