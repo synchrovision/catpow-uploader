@@ -40,6 +40,16 @@ function extract_dir_to_files($files){
 	}
 	return $files;
 }
+function ftp_extract_dir_to_files($con,$files){
+	$rtn=[];
+	foreach($files as $file){
+		if(ftp_size($con,$file)<0){
+			$rtn=array_merge($rtn,ftp_get_all_files_in_dir($con,$file));
+		}
+		else{$rtn[]=$file;}
+	}
+	return $rtn;
+}
 function upload_files_with_sftp($files){
 	assert(isset($_ENV['SFTP_HOST']),'require SFTP_HOST');
 	assert(isset($_ENV['SFTP_USER']),'require SFTP_USER');
@@ -262,6 +272,7 @@ function download_files_with_ftp($files){
 		ftp_mkdir_recursive($con,$_ENV['FTP_ROOT_PATH']);
 		ftp_chdir($con,$_ENV['FTP_ROOT_PATH']);
 		$dir=ABSPATH;
+		$files=ftp_extract_dir_to_files($con,$files);
 		foreach($files as $file){
 			$f=$dir.'/'.$file;
 			if(!is_dir(dirname($f))){mkdir(dirname($f),0755,true);}
@@ -477,6 +488,15 @@ function get_all_files_in_dir($dir=null){
 		else{
 			$files[]=$f;
 		}
+	}
+	return $files;
+}
+function ftp_get_all_files_in_dir($con,$dir){
+	$files=[];
+	foreach(ftp_mlsd($con,$dir) as $info){
+		if(in_array($info['name'],['.','..','.DS_Store','_notes','.git'],true)){continue;}
+		if($info['type']==='dir'){$files=array_merge($files,ftp_get_all_files_in_dir($con,$dir.'/'.$info['name']));}
+		elseif($info['type']==='file'){$files[]=$dir.'/'.$info['name'];}
 	}
 	return $files;
 }
