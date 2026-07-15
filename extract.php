@@ -7,6 +7,7 @@ if(substr($_SERVER['SERVER_PROTOCOL']??'',0,4)==='HTTP'){
 	die("Execute this PHP with CLI !");
 }
 ini_set("error_log","php://stdout");
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 include __DIR__.'/inc/functions.php';
 
 $d=__DIR__.'/fileset';

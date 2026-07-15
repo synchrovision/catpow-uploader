@@ -6,6 +6,7 @@ if(substr($_SERVER['SERVER_PROTOCOL']??'',0,4)==='HTTP'){
 	die("Execute this PHP with CLI !");
 }
 ini_set("error_log","php://stdout");
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 include __DIR__.'/inc/functions.php';
 
 if(empty($set=$argv[1]??null)){die("Require fileset name as first parameter\n");}
